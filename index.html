@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>GPS track editor</title>
+  <script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false"></script>
+  <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script type="text/javascript" src="js/track.js"></script>
+  <link href="css/style.css" media="all" rel="stylesheet" type="text/css">
+</head>
+<body>
+<style>
+
+</style>
+
+<input type="file" id="files" name="files[]" multiple />
+<div><output id="list"></output></div>
+
+<div><output id="data"></output></div>
+
+<div id="map-canvas"></div>
+
+
+
+<script type="text/javascript">
+  // tcx: http://googlemapapitips.wordpress.com/2012/05/18/display-tcx-tracks-using-google-maps-api/
+  // gpx: http://www.jacquet80.eu/blog/post/2011/02/Display-GPX-tracks-using-Google-Maps-API
+  // Teszt file: 140502-Keszthely-Balatonederics-Keszthely.tcx
+
+
+  function get_gpx_pos(xml) {
+    var points = [];
+    $(xml).find("trkpt").each(function() {
+      var lat = $(this).attr("lat");
+      var lon = $(this).attr("lon");
+      var p = new google.maps.LatLng(lat, lon);
+      points.push(p);
+    });
+
+    return points;
+  }
+
+  function get_tcx_pos(xml) {
+    var points = [];
+    $(xml).find('Position').each(function() {
+      var lat=$(this).find('LatitudeDegrees').text();
+      var lon = $(this).find('LongitudeDegrees').text();
+      var p = new google.maps.LatLng(lat, lon);
+      points.push(p);
+    });
+
+    return points;
+  }
+
+  function initialize(xml) {
+    var mapOptions = {
+//      mapTypeId: google.maps.MapTypeId.TERRAIN,
+//      center: new google.maps.LatLng(-34.397, 150.644),
+      zoom: 8
+    };
+
+
+    var map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
+    var points = [];
+    points = get_tcx_pos(xml);
+    var bounds = new google.maps.LatLngBounds ();
+    for (var i = 0; i < points.length; i++) {
+      bounds.extend(points[i]);
+    };
+
+    var poly = new google.maps.Polyline({
+      // use your own style here
+      path: points,
+      strokeColor: '#FF0000',
+      strokeOpacity: .7,
+      strokeWeight: 3
+    });
+
+    poly.setMap(map);
+
+    // fit bounds to track
+    map.fitBounds(bounds);
+  }
+
+var filedata = '';
+var xmlData;
+var track;
+
+function handleFileSelect(evt) {
+  var files = evt.target.files; // FileList object
+
+  // Loop through the FileList and render image files as thumbnails.
+  for (var i = 0, f; f = files[i]; i++) {
+    var reader = new FileReader();
+
+    // Closure to capture the file information.
+    reader.onload = (function(theFile) {
+      return function(e) {
+        // Render thumbnail.
+        filedata = e.target.result;
+        console.log(theFile);
+
+        $('#list').html(theFile.name);
+//        $('#data').html(filedata);
+        initialize(filedata);
+        xmlData = $.parseXML(filedata);
+        track = $(xmlData)
+
+        // xmlData.documentElement < visszaadja az XML filet.
+        // track.find('gpx').attr('xmlns') < atirja az attributumot
+
+      };
+    })(f);
+
+    // Read in the image file as a filedata URL.
+//    reader.readAsDataURL(f);
+    reader.readAsText(f);
+  }
+}
+
+document.querySelector('#files').addEventListener('change', handleFileSelect, false);
+
+// XML to array OR object
+//  http://www.ibm.com/developerworks/xml/tutorials/x-processxmljquerytut/index.html?ca=dat-
+//  http://www.sitepoint.com/how-to-convert-xml-to-a-javascript-object/
+//  http://goessner.net/download/prj/jsonxml/
+//  http://stackoverflow.com/questions/13600219/convert-xml-to-javascript-object
+//  https://code.google.com/p/x2js/
+//  http://stackoverflow.com/questions/16411199/convert-xml-to-object-using-jquery-of-plain-javascript
+//  http://stackoverflow.com/questions/14306854/convert-xml-to-object-with-jquery
+//  http://stackoverflow.com/questions/6542187/xml-to-javascript-array-with-jquery
+
+
+</script>
+
+</body>
+</html>
