@@ -1,0 +1,10 @@
+#phpstorm files
+.idea
+.idea/*
+
+#komodo edit
+*.komodoproject
+*.komodotools
+
+# Eclipse/Aptana
+*.project
