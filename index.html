@@ -2,6 +2,7 @@
 <html>
 <head>
   <title>GPS track editor</title>
+  <link href="http://necolas.github.io/normalize.css/3.0.1/normalize.css" media="all" rel="stylesheet" type="text/css">
   <script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false"></script>
   <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
   <link rel="stylesheet" href="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/themes/smoothness/jquery-ui.css" />
@@ -15,12 +16,28 @@
 
 </style>
 
+<div id="editor">
+  <div id="left">
+    <h1>GPS track editor</h1>
 
+    <div>Select GPX or TCX file:</div>
 
+    <div class="ajax-upload-dragdrop" style="vertical-align:top;">
+      <div class="file-upload">Select
+          <input type="file" id="files" name="file[]" multiple />
+      </div>
+    </div>
 
+    <div><output id="list"></output></div>
 
+    <div><output id="data"></output></div>
 
+    <div id="tracks">
+    </div>
+  </div>
 
+  <div id="map-canvas"></div>
+</div>
 
 
 </body>
