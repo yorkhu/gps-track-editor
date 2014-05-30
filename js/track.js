@@ -57,7 +57,9 @@ $(document).ready(function () {
 
     $(track.xml).find("trk").each(function () {
       var segment = {};
+      segment.points = [];
       segment.gpoints = [];
+
       $(this).find("trkpt").each(function () {
         var p = {};
         p.lat = $(this).attr("lat");
