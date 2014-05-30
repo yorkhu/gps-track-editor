@@ -11,22 +11,31 @@ body {
 #editor {
   width: 100%;
   height: 100%;
+  min-height: 400px;
 }
 
 #left {
   width: 25%;
   height: 100%;
   float: left;
-  min-height: 300px;
+  min-height: 400px;
 }
 
 #left-wrapper {
-  padding-left: 10px;
+  padding: 0 10px;
+}
+
+#tracks {
+}
+
+.track {
+  min-height: 400px;
 }
 
 #map-canvas {
   width: 75%;
   height: 100%;
+  min-height: 400px;
 }
 
 .file-upload {
@@ -78,3 +87,47 @@ body {
   left: 0px;
   opacity: 0;
 }
+
+.ui-tabs .ui-tabs-panel {
+  padding: 5px;
+}
+
+.ui-tabs.ui-widget-content {
+  border: none;
+  padding: 0;
+}
+
+.ui-accordion .ui-accordion-content {
+  padding: 0;
+}
+
+.ui-tabs-nav.ui-corner-all {
+  border-radius: 0;
+}
+
+.segment .segment-list li {
+  white-space: nowrap;
+  width: 495px;
+}
+
+.segment .segment-list li span {
+  padding-right: 5px;
+  margin-right: 5px;
+  border-right: solid 1px #000000;
+  display: inline-block;
+}
+
+.segment .segment-list li span.pos {
+  width: 40px;
+}
+
+.segment .segment-list li span.time {
+  width: 135px;
+}
+
+.segment .segment-list li span.lat,
+.segment .segment-list li span.lon {
+  text-align: right;
+  width: 140px;
+}
+
