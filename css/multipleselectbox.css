@@ -1,0 +1,84 @@
+.MultipleSelectBox {
+  height: 300px;
+  list-style-type: none;
+  margin: 0;
+  overflow: auto;
+  padding: 1px 0;
+  background-color: white;
+  color: black;
+}
+
+.MultipleSelectBox.selecting {
+  border: 1px solid black;
+}
+
+.MultipleSelectBox li {
+  border: 1px solid white;
+  cursor: pointer;
+  padding: 0 3px;
+  font-size: 8px;
+}
+
+.MultipleSelectBox li.disabled {
+  color: gray;
+  font-style: italic;
+}
+
+.MultipleSelectBox li.optgroup {
+  font-style: italic;
+  font-weight: bold;
+}
+
+.MultipleSelectBox li.selected {
+  border: 1px solid #3BAAE3;
+  background-color: #3BAAE3;
+}
+
+.MultipleSelectBox li.selecting {
+  border: 1px dotted black;
+}
+
+.MultipleSelectBox.vertical li.optgroupitem {
+  margin-left: 30px;
+}
+
+/* horizontal mode */
+.MultipleSelectBox.horizontal {
+  height: auto;
+  white-space: nowrap;
+}
+
+.MultipleSelectBox.horizontal li {
+  display: inline-block;
+  /* for IE6 and IE7 */
+  *display: inline;
+  zoom: 1;
+  vertical-align: middle;
+}
+
+.MultipleSelectBox.horizontal li.optgroup {
+  margin-bottom: 10px;
+}
+
+/* popup mode */
+.MultipleSelectBox.popup {
+  background-color: white;
+  display: none;
+  position: absolute;
+  z-index: 1;
+}
+
+/* Ultimate CSS Gradient Generator (Orange 3D) */
+.MultipleSelectBox li.selected {
+  color: white;
+  background: #3BAAE3;
+  background: -moz-linear-gradient(top, #3BAAE3 0%, #2694E8 100%);
+  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #3BAAE3), color-stop(100%, #2694E8));
+  background: -webkit-linear-gradient(top, #3BAAE3 0%, #2694E8 100%);
+  background: -o-linear-gradient(top, #3BAAE3 0%, #2694E8 100%);
+  background: -ms-linear-gradient(top, #3BAAE3 0%, #2694E8 100%);
+  background: linear-gradient(to bottom, #3BAAE3 0%, #2694E8 100%);
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#3BAAE3', endColorstr='#2694E8', GradientType=0);
+   /* for IE6 */
+  _background: #3BAAE3;
+}
