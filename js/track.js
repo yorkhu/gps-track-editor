@@ -7,7 +7,7 @@ $(document).ready(function () {
     zoom: 9
   };
 
-  var map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
+  map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
 
   google_map.selected_track = new google.maps.Polyline({
     path: [],
