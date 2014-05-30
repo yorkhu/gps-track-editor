@@ -106,13 +106,13 @@ $(document).ready(function () {
   function add_track_region(track) {
     var trackid = 'track-1';
     var new_track = '<h3 class="' + trackid + '">' + tracks.file.name + '</h3>';
-    new_track += '<div class="track ' + trackid + '" filename="' + tracks.file.name + '">';
+    new_track += '<div id="' + trackid + '" class="track ' + trackid + '" filename="' + tracks.file.name + '">';
     var segment_titles = '';
     var segment_body = '';
 
     for (var i = 0; i < track.segments.length; i++) {
-      segment_titles += '<li><a href="#segment-' + i + '">Segment ' + i + '</a></li>';
-      segment_body += '<div id="segment-' + i + '" class="segment">';
+      segment_titles += '<li><a href="#' + trackid + '-segment-' + i + '">Segment ' + i + '</a></li>';
+      segment_body += '<div id="' + trackid + '-segment-' + i + '" class="segment" segment="' + i + '">';
       segment_body += '<ul id="segment-selectable-' + i + '" class="segment-list">';
       for (var j = 0; j < track.segments[i].points.length; j++) {
         var date = new Date(track.segments[i].points[j].time);
@@ -130,7 +130,9 @@ $(document).ready(function () {
 
     new_track += '<div id="' + trackid + '-segments"><ul>' + segment_titles + '</ul>';
 
-    new_track += segment_body + '</div></div>';
+    new_track += segment_body + '</div>';
+    new_track += '<button class="delete">Delete</button>';
+    new_track += '</div>';
 
     // Attached new track
     $('#tracks').append(new_track);
@@ -166,6 +168,51 @@ $(document).ready(function () {
 
     // Refresh tracks accordion
     $('#tracks').accordion("refresh");
+
+    $('.' + trackid + ' .delete').button().click(function( event ) {
+      var active_track = $(this).parent('div.track').attr('id');
+      var active_segment = $(this).parent('div.track').find('li.ui-tabs-active').attr('aria-controls');
+      var segment = $('#' + active_segment).attr('segment');
+
+
+      $('#' + active_segment).find('li.selected').each(function () {
+        var pos = $(this).attr('pos');
+
+        if (tracks.segments[segment].points[pos].raw) {
+          $(tracks.segments[segment].points[pos].raw).remove();
+          delete tracks.segments[segment].points[pos];
+        }
+      });
+
+      $('#' + active_segment).find('li.selected').remove();
+
+      var gpoints = [];
+
+      for (var i = 0; i < tracks.segments[segment].points.length; i++) {
+        if (tracks.segments[segment].points[i]) {
+          var lat = tracks.segments[segment].points[i].lat;
+          var lon = tracks.segments[segment].points[i].lon;
+
+          if (lat && lon) {
+            var gp = new google.maps.LatLng(lat, lon);
+            gpoints.push(gp);
+          }
+        }
+      }
+
+      tracks.segments[segment].gpoints = gpoints;
+
+      tracks.segments[segment].poly.setMap(null);
+      tracks.segments[segment].poly.setPath(gpoints);
+      tracks.segments[segment].poly.setMap(map);
+
+
+      google_map.selected_track.setMap(null);
+      google_map.selected_track.setPath([]);
+      google_map.selected_track.setMap(map);
+
+      event.preventDefault();
+    });
 
   }
 
