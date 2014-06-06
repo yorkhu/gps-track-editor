@@ -118,16 +118,16 @@ body {
 }
 
 .segment .segment-list li span.pos {
-  width: 40px;
+  width: 30px;
 }
 
 .segment .segment-list li span.time {
-  width: 135px;
+  width: 115px;
 }
 
 .segment .segment-list li span.lat,
 .segment .segment-list li span.lon {
   text-align: right;
-  width: 140px;
+  width: 120px;
 }
 
