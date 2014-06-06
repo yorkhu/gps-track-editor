@@ -52,12 +52,12 @@ $(document).ready(function () {
         if ('TrainingCenterDatabase' == track.filetype) {
           p.lat = $(this).find('LatitudeDegrees').text();
           p.lon = $(this).find('LongitudeDegrees').text();
-          p.time = $(this).find('time').text();
+          p.time = $(this).find('Time').text();
         }
         else if ('gpx' == tracks.filetype) {
           p.lat = $(this).attr("lat");
           p.lon = $(this).attr("lon");
-          p.time = $(this).find('Time').text();
+          p.time = $(this).find('time').text();
         }
 
         p.raw = $(this);
