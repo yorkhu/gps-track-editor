@@ -46,6 +46,7 @@ $(document).ready(function () {
       var segment = {};
       segment.points = [];
       segment.gpoints = [];
+      segment.raw = $(this);
 
       $(this).find($point).each(function () {
         var p = {};
@@ -147,6 +148,7 @@ $(document).ready(function () {
 
     new_track += segment_body + '</div>';
     new_track += '<button class="delete">Delete</button>';
+    new_track += '<button class="download">Download</button>';
     new_track += '</div>';
 
     // Attached new track
@@ -186,6 +188,11 @@ $(document).ready(function () {
 
     $('.' + trackid + ' .delete').button().click(function( event ) {
       delete_track_point(this);
+      event.preventDefault();
+    });
+
+    $('.' + trackid + ' .download').button().click(function( event ) {
+      download_track(this);
       event.preventDefault();
     });
   }
@@ -234,6 +241,148 @@ $(document).ready(function () {
     google_map.selected_track.setMap(null);
     google_map.selected_track.setPath([]);
     google_map.selected_track.setMap(map);
+  }
+
+  /**
+   * Download track file.
+   * @param download_button
+   */
+  function download_track(download_button) {
+    var active_track = $(download_button).parent('div.track').attr('id');
+    var active_segment = $(download_button).parent('div.track').find('li.ui-tabs-active').attr('aria-controls');
+    var segment = $('#' + active_segment).attr('segment');
+
+    window.URL = window.webkitURL || window.URL;
+
+    var contentType = tracks.file.type;
+    var track_content = '';
+
+    if ('TrainingCenterDatabase' == tracks.filetype) {
+      for (var i = 0; i < tracks.segments.length; i++) {
+        var TotlaTimeSeconds = 0;
+        var DistanceMeters = 0;
+        var HeartRateBpmSum = 0;
+        var MaximumHeartRateBpm = 0;
+        var MaximumSpeed = 0;
+        var SpeedSum = 0;
+        var number = 0;
+
+        for (var j = 0; j < tracks.segments[i].points.length; j++) {
+          if (tracks.segments[i].points[j]) {
+            number++;
+
+            var HeartRateBpm = 0;
+            HeartRateBpm += parseFloat(tracks.segments[i].points[j].raw.find('HeartRateBpm').find('Value').text());
+            if (HeartRateBpm) {
+              HeartRateBpmSum += HeartRateBpm;
+              if (MaximumHeartRateBpm < HeartRateBpm) {
+                MaximumHeartRateBpm = HeartRateBpm;
+              }
+            }
+
+            var Speed = 0;
+            Speed += parseFloat(tracks.segments[i].points[j].raw.find('Speed').text());
+            if (Speed) {
+              SpeedSum += Speed;
+              if (MaximumSpeed < Speed) {
+                MaximumSpeed = Speed;
+              }
+            }
+          }
+        }
+
+        tracks.segments[i].raw.find('MaximumSpeed').text(MaximumSpeed);
+        tracks.segments[i].raw.find('AverageHeartRateBpm').find('Value').text(parseInt(HeartRateBpmSum / number));
+        tracks.segments[i].raw.find('MaximumHeartRateBpm').find('Value').text(MaximumHeartRateBpm);
+        tracks.segments[i].raw.find('Extensions').find('AvgSpeed').text(SpeedSum / number);
+      }
+
+
+      var file_lines = tracks.filedata.split("\n");
+      for (var i = 0; i < file_lines.length; i++) {
+        if (file_lines[i] == '  <Activities>') {
+          break;
+        }
+        else {
+          // right trim
+          track_content += file_lines[i].replace(/\s+$/,'') + "\n";
+        }
+      }
+    }
+    else if ('gpx' == tracks.filetype) {
+      //<metadata>
+      //  <bounds maxlat="46.9106160" maxlon="17.2600210" minlat="46.8911740" minlon="17.2296120"/>
+      corners = {};
+      corners.max_lat = "0";
+      corners.max_lon = "0";
+      corners.min_lat = "90";
+      corners.min_lon = "180";
+
+      for (var i = 0; i < tracks.segments.length; i++) {
+        for (var j = 0; j < tracks.segments[i].points.length; j++) {
+          if (tracks.segments[i].points[j]) {
+            if (tracks.segments[i].points[j].lat < corners.min_lat) {
+              corners.min_lat = tracks.segments[i].points[j].lat;
+            }
+
+            if (tracks.segments[i].points[j].lat > corners.max_lat) {
+              corners.max_lat = tracks.segments[i].points[j].lat;
+            }
+
+            if (tracks.segments[i].points[j].lon < corners.min_lon) {
+              corners.min_lon = tracks.segments[i].points[j].lon;
+            }
+
+            if (tracks.segments[i].points[j].lon > corners.max_lon) {
+              corners.max_lon = tracks.segments[i].points[j].lon;
+            }
+          }
+        }
+      }
+      tracks.xml.find('metadata').find('bounds').attr('maxlat', corners.max_lat);
+      tracks.xml.find('metadata').find('bounds').attr('maxlon', corners.max_lon);
+      tracks.xml.find('metadata').find('bounds').attr('minlat', corners.min_lat);
+      tracks.xml.find('metadata').find('bounds').attr('minlon', corners.min_lon);
+
+      var file_lines = tracks.filedata.split("\n");
+      for (var i = 0; i < file_lines.length; i++) {
+        if (file_lines[i].substr(0, 12) == '  <metadata>') {
+          break;
+        }
+        else {
+          // right trim
+          track_content += file_lines[i].replace(/\s+$/,'') + "\n";
+        }
+      }
+    }
+
+    track_content += tracks.xmlData.documentElement.innerHTML;
+    track_content += '</' + tracks.filetype + ">\n";
+
+    var track_content_lines = track_content.split("\n");
+
+    for (var i = track_content_lines.length -1; i >= 0; i--) {
+      // right trim
+      if (track_content_lines[i].replace(/\s+$/,'') != track_content_lines[i]) {
+        track_content_lines.splice(i, 1);
+      }
+    }
+
+    track_content = track_content_lines.join("\n");
+    var gpsFile = new Blob([track_content], {type: contentType});
+
+    var a = document.createElement('a');
+    a.download = tracks.file.name;
+    a.href = window.URL.createObjectURL(gpsFile);
+    a.textContent = 'Download';
+    a.dataset.downloadurl = [contentType, a.download, a.href].join(':');
+
+    // Append anchor to body.
+    document.body.appendChild(a)
+    a.click();
+
+    // Remove anchor from body
+    document.body.removeChild(a)
   }
 
   function handleFileSelect(evt) {
@@ -288,6 +437,4 @@ $(document).ready(function () {
   $("#selectable").multipleSelectBox({
     maxLimit: 2
   });
-
-
 });
