@@ -190,6 +190,10 @@ $(document).ready(function () {
     });
   }
 
+  /**
+   * Delete selected track points.
+   * @param delete_button
+   */
   function delete_track_point(delete_button) {
     var active_track = $(delete_button).parent('div.track').attr('id');
     var active_segment = $(delete_button).parent('div.track').find('li.ui-tabs-active').attr('aria-controls');
@@ -197,7 +201,7 @@ $(document).ready(function () {
 
 
     $('#' + active_segment).find('li.selected').each(function () {
-      var pos = $(delete_button).attr('pos');
+      var pos = $(this).attr('pos');
 
       if (tracks.segments[segment].points[pos].raw) {
         $(tracks.segments[segment].points[pos].raw).remove();
