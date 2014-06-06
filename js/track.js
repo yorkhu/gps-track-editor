@@ -94,11 +94,14 @@ $(document).ready(function () {
     track.google = {};
     track.google.bounds = new google.maps.LatLngBounds();
 
-    for (var i = 0; i < track.segments.length; i++) {
-      for (var j = 0; j < track.segments[i].gpoints.length; j++) {
-        track.google.bounds.extend(track.segments[i].gpoints[j]);
-      }
+    // Set track corner:
+    var corner = new google.maps.LatLng(track.corners.max_lat, track.corners.max_lon);
+    track.google.bounds.extend(corner);
+    var corner = new google.maps.LatLng(track.corners.min_lat, track.corners.min_lon);
+    track.google.bounds.extend(corner);
 
+    for (var i = 0; i < track.segments.length; i++) {
+      // Create track
       track.segments[i].poly = new google.maps.Polyline({
         path: track.segments[i].gpoints,
         strokeColor: '#FF0000',
@@ -106,6 +109,7 @@ $(document).ready(function () {
         strokeWeight: 3
       });
 
+      // Display track
       track.segments[i].poly.setMap(map);
 
     }
