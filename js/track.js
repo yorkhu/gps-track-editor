@@ -25,49 +25,60 @@ $(document).ready(function () {
   // tcx: http://googlemapapitips.wordpress.com/2012/05/18/display-tcx-tracks-using-google-maps-api/
   // gpx: http://www.jacquet80.eu/blog/post/2011/02/Display-GPX-tracks-using-Google-Maps-API
 
-  function get_tcx_pos(track) {
+  function get_pos(track) {
     track.segments = [];
+    track.corners = {};
+    track.corners.max_lat = "0";
+    track.corners.max_lon = "0";
+    track.corners.min_lat = "90";
+    track.corners.min_lon = "180";
 
-    $(track.xml).find('Lap').each(function () {
+    if ('TrainingCenterDatabase' == track.filetype) {
+      $segment = 'Lap';
+      $point = 'Trackpoint';
+    }
+    else if ('gpx' == tracks.filetype) {
+      $segment = 'trk';
+      $point = 'trkpt';
+    }
+
+    $(track.xml).find($segment).each(function () {
       var segment = {};
       segment.points = [];
       segment.gpoints = [];
 
-      $(this).find('Trackpoint').each(function () {
+      $(this).find($point).each(function () {
         var p = {};
-        p.lat = $(this).find('LatitudeDegrees').text();
-        p.lon = $(this).find('LongitudeDegrees').text();
-        p.time = $(this).find('Time').text();
-        p.raw = $(this);
-
-        if (p.lat && p.lon) {
-          var gp = new google.maps.LatLng(p.lat, p.lon);
-          segment.gpoints.push(gp);
+        if ('TrainingCenterDatabase' == track.filetype) {
+          p.lat = $(this).find('LatitudeDegrees').text();
+          p.lon = $(this).find('LongitudeDegrees').text();
+          p.time = $(this).find('time').text();
+        }
+        else if ('gpx' == tracks.filetype) {
+          p.lat = $(this).attr("lat");
+          p.lon = $(this).attr("lon");
+          p.time = $(this).find('Time').text();
         }
 
-        segment.points.push(p);
-      });
-
-      track.segments.push(segment);
-    });
-  }
-
-  function get_gpx_pos(track) {
-    track.segments = [];
-
-    $(track.xml).find("trk").each(function () {
-      var segment = {};
-      segment.points = [];
-      segment.gpoints = [];
-
-      $(this).find("trkpt").each(function () {
-        var p = {};
-        p.lat = $(this).attr("lat");
-        p.lon = $(this).attr("lon");
-        p.time = $(this).find('time').text();
         p.raw = $(this);
 
         if (p.lat && p.lon) {
+          if (p.lat < track.corners.min_lat) {
+            track.corners.min_lat = p.lat;
+          }
+
+          if (p.lat > track.corners.max_lat) {
+            track.corners.max_lat = p.lat;
+          }
+
+          if (p.lon < track.corners.min_lon) {
+            track.corners.min_lon = p.lon;
+          }
+
+          if (p.lon > track.corners.max_lon) {
+            track.corners.max_lon = p.lon;
+          }
+
           var gp = new google.maps.LatLng(p.lat, p.lon);
           segment.gpoints.push(gp);
         }
@@ -233,11 +244,8 @@ $(document).ready(function () {
           tracks.xml = $(tracks.xmlData);
           tracks.filetype = tracks.xml.children().prop('tagName');
 
-          if ('TrainingCenterDatabase' == tracks.filetype) {
-            get_tcx_pos(tracks);
-          }
-          else if ('gpx' == tracks.filetype) {
-            get_gpx_pos(tracks);
+          if (('TrainingCenterDatabase' == tracks.filetype) || ('gpx' == tracks.filetype)) {
+            get_pos(tracks);
           }
           else {
             $('#list').html('Wrong file format!');
